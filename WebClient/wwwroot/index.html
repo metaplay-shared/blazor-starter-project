@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#02060a" />
+    <!-- PWA manifest: makes the client installable as a standalone (chrome-free) app. -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <base href="/" />
+    <!-- Starts the fetch of the endpoints file, which the SDK waits for before .NET starts. The empty one in wwwroot/
+         connects a local page to the local game server, and 'metaplay deploy webclient' replaces it. -->
+    <link rel="preload" href="metaplay-endpoints.json" as="fetch" crossorigin />
+    <!-- The styles and the display font are served with the client, not from another origin. -->
+    <link rel="stylesheet" href="_content/WebClientBase/css/app-base.css" />
+    <link rel="stylesheet" href="app.css" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <!-- Replaced by appTitle at startup. -->
+    <title>Game Starter</title>
+</head>
+
+<body style="background: var(--bg-primary, #02060a);">
+    <div id="app">
+        <div style="position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--text-secondary, #a1a1aa); font-family: system-ui, sans-serif;">
+            Loading…
+        </div>
+    </div>
+
+    <div id="blazor-error-ui" data-nosnippet>
+        An unhandled error has occurred.
+        <a href="." class="reload" onclick="location.assign(startPageUrl); return false;">Reload</a>
+        <span class="dismiss">🗙</span>
+    </div>
+
+    <script>
+        // Where the error bar's Reload goes: the app root, with the query the page was loaded with, as
+        // WebClientBase's StartPage.Reload does. This one works after Blazor has failed.
+        var startPageUrl = new URL(location.search, document.baseURI).href;
+    </script>
+    <!-- Suppress the browser's context menu, from a right-click or a long-press (CSS can't block this). -->
+    <script>
+        window.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    </script>
+    <script src="_framework/blazor.webassembly.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,5 @@
+Id #key,DisplayName,Cost,ClicksPerSecond
+"// TODO: Example content, replace with your own. Delete these rows together with the AutoClickers entry in SharedGameConfig.cs."
+cursor,Cursor,25,1
+workshop,Workshop,250,10
+factory,Factory,2000,60

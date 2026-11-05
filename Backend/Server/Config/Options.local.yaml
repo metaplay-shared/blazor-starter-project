@@ -1,0 +1,6 @@
+# Option overrides when running server locally
+
+# Bind the WebSocket listener to all interfaces (default is 127.0.0.1 in local environments) so the
+# browser-based WebClient can connect from other devices on the LAN, not just this machine.
+WebSockets:
+  ListenHost: "0.0.0.0"

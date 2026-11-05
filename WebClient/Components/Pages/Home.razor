@@ -1,0 +1,80 @@
+@page "/"
+@inherits GamePageBase
+@using Game.Logic
+@using WebClientBase.Configuration
+@inject WebClientConfig Config
+
+<PageTitle>@Config.AppTitle</PageTitle>
+
+@* The startup splash stands in until the first session has a player to draw. Connection trouble after that is the
+   connection overlay's to show (WebClientBase/App), so this page does not check the connection. *@
+<StartupSplash IsReady="Player != null">
+    @* ---------------- Game screen ----------------
+       A small, styled game screen that demonstrates the starter project's look (dark navy theme, display font,
+       glossy hero button, entrance/idle animations) and the player → action → model loop: clicking earns
+       clicks, which can be spent on auto-clickers that then produce clicks over time. The player ID,
+       connection status and reset controls live in the shared top bar (WebClientBase/MainLayout) — they
+       are the starter project's chrome, not part of the game. *@
+    <section class="game-home">
+        <div class="game-home__stage">
+            @* Title block — title and logo come from WebClientConfig (set in WebClient/Program.cs). *@
+            <div class="game-home__brand animate-fade-in">
+                <div class="game-home__logo animate-float" aria-hidden="true">@Config.LogoEmoji</div>
+                <h1 class="font-display">@Config.AppTitle.ToUpperInvariant()</h1>
+                <p>A clean Metaplay project to build your game on.</p>
+            </div>
+
+            @* TODO: Example content, replace with your own.
+               The play area (counter and hero button) here and the auto-clicker shop below draw the
+               auto-clicker example. The section grid, the stage and the title block are the starter project's furniture. *@
+            <div class="game-home__play">
+                @* Example state: the click counter, driven by the PlayerClick action and auto-clicker production. *@
+                <div class="game-home__score animate-pop-in">
+                    <span class="game-home__label">Clicks</span>
+                    @* @key retriggers the count-pop animation each time the value changes. data-testid is a stable
+                       hook for the E2E tests (the counter has no accessible role/label of its own). *@
+                    <span @key="Clicks" data-testid="clicks-counter" class="game-home__count font-display animate-count-pop">@Clicks</span>
+                </div>
+                @* Hero CTA: the glossy gold button styled in app.css. Calls the example player action. *@
+                <button class="btn-hero btn-glossy game-home__click font-display"
+                        @onclick="@(() => MetaplayService.Click())">
+                    CLICK
+                </button>
+            </div>
+        </div>
+
+        @* Auto-clicker shop: spend clicks on producers (the PlayerBuyAutoClicker action). Only the item list
+           scrolls when its contents exceed the reserved shop area. *@
+        <aside class="game-home__shop animate-fade-in" aria-label="Auto-clickers">
+            <div class="game-home__shop-header">
+                <h2 class="font-display">Auto-clickers</h2>
+                <span>+@RatePerSecond / s</span>
+            </div>
+            <div class="game-home__shop-list">
+                @foreach (AutoClickerInfo ac in MetaplayService.AutoClickers)
+                {
+                    bool affordable = Clicks >= ac.Cost;
+                    <button class="game-home__shop-item"
+                            disabled="@(!affordable)"
+                            title="@(affordable ? null : $"You need {ac.Cost} clicks to buy this.")"
+                            @onclick="@(() => MetaplayService.BuyAutoClicker(ac.Id))">
+                        <span class="game-home__shop-item-copy">
+                            <span class="font-display">@ac.DisplayName</span>
+                            <span class="game-home__shop-item-detail">+@ac.ClicksPerSecond / s · owned @OwnedCount(ac.Id)</span>
+                        </span>
+                        <span class="game-home__shop-item-cost font-display">@ac.Cost</span>
+                    </button>
+                }
+            </div>
+        </aside>
+    </section>
+</StartupSplash>
+
+@code {
+    private PlayerModel? Player => MetaplayService.PlayerModel;
+
+    // TODO: Example content, replace with your own.
+    private int Clicks => Player?.NumClicks ?? 0;
+    private long RatePerSecond => Player?.GetAutoClickerRatePerSecond() ?? 0;
+    private int OwnedCount(AutoClickerId id) => Player?.AutoClickers.GetValueOrDefault(id) ?? 0;
+}

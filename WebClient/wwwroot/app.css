@@ -1,0 +1,213 @@
+/* Game-specific styles, in plain CSS, loaded after WebClientBase's app-base.css (see index.html).
+   The base palette (navy + command-blue) is set in Program.cs via ThemeColors, which App.razor renders as CSS
+   variables (--bg-primary, --text-secondary, --accent-blue, ...); use them rather than colour values. The display
+   font, the element reset and the motion toolkit (.font-display, .animate-*, .btn-glossy) live in app-base.css. Add
+   your game's styles here. */
+
+/* ---------------------------------------------------------------------------
+   Design tokens
+   These are NEW variables (not overrides), so defining them here is safe even though App.razor injects
+   the theme :root block after this stylesheet. The gold is the hero accent — reserved for the primary
+   call-to-action button.
+   --------------------------------------------------------------------------- */
+:root {
+    --accent-gold:       #f5c542;
+    --accent-gold-deep:  #d99a1f;
+    --hero-glow:         rgba(245, 197, 66, 0.55);
+}
+
+/* ---------------------------------------------------------------------------
+   Hero CTA (primary action button)
+   A glossy, beveled gold key with a breathing glow so it reads as THE action.
+   Combine with .btn-glossy (depth/press) from app-base.css.
+   --------------------------------------------------------------------------- */
+.btn-hero {
+    background: linear-gradient(180deg, #ffe27a 0%, var(--accent-gold) 48%, var(--accent-gold-deep) 100%);
+    color: #2a1a00;
+    --glow-color: var(--hero-glow);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+    /* Pops in on entrance (transform+opacity), then breathes a gold glow (box-shadow) — the two
+       animations touch different properties, so they layer cleanly in one declaration. */
+    animation: mp-pop-in 0.32s var(--ease-spring) both,
+               mp-pulse-glow 2.4s ease-in-out 0.32s infinite;
+}
+.btn-hero:active:not(:disabled) {
+    filter: brightness(1.04);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .btn-hero {
+        animation: mp-pop-in 0.001s both;
+    }
+}
+
+/* Rapid clicking must not select the surrounding text. Real controls stay selectable. */
+body {
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+button,
+input,
+textarea,
+select {
+    -webkit-user-select: auto;
+    user-select: auto;
+}
+
+/* The sample uses a stage and a reserved side panel. Their sizes do not depend on
+   the score or the number of items currently available. */
+.game-home {
+    display: grid;
+    grid-template-columns: minmax(16rem, 1fr) clamp(19rem, 26vw, 25rem);
+    gap: clamp(1.25rem, 3vw, 3rem);
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    padding: clamp(1.5rem, 3vw, 3rem);
+    padding-top: clamp(4rem, 6vw, 5.5rem);
+}
+
+.game-home__stage {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    min-width: 0;
+    min-height: 0;
+}
+
+.game-home__brand h1 {
+    color: var(--text-primary);
+    font-size: clamp(2rem, 3vw, 3.25rem);
+    line-height: 1;
+}
+
+.game-home__brand p {
+    margin-top: 0.75rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.game-home__logo {
+    margin-bottom: 1rem;
+    font-size: clamp(2.5rem, 4vw, 4rem);
+    line-height: 1;
+    width: fit-content;
+}
+
+/* TODO: Example content, replace with your own.
+   The play-area and shop rules below style the auto-clicker example. The .game-home grid, the stage and
+   the brand rules above are the starter project's furniture. */
+.game-home__play {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* safe: when the window is too short, overflow goes downward into the scrollable area. */
+    justify-content: safe center;
+    gap: clamp(1.5rem, 4vh, 3rem);
+    min-height: 0;
+}
+
+.game-home__score {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 8rem;
+    justify-content: center;
+}
+
+.game-home__label {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.game-home__count {
+    color: var(--accent-blue);
+    font-size: clamp(3.25rem, 6vw, 5.5rem);
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    min-width: 6ch;
+}
+
+.game-home__click {
+    border-radius: 999px;
+    padding: 1rem 4rem;
+    font-size: 1.5rem;
+}
+
+.game-home__shop {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    min-width: 0;
+    min-height: 0;
+    padding: 1.25rem;
+    border: 1px solid var(--border-color);
+    border-radius: 1.25rem;
+    background: var(--bg-secondary);
+}
+
+.game-home__shop-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0 0.25rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+}
+
+.game-home__shop-header h2 {
+    color: var(--text-primary);
+    font-size: 1.25rem;
+}
+
+.game-home__shop-header span {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.game-home__shop-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 1rem 0.25rem 0.25rem;
+}
+
+.game-home__shop-item {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+    min-height: 4.5rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    text-align: left;
+}
+
+.game-home__shop-item-copy {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.game-home__shop-item-detail {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+}
+
+.game-home__shop-item-cost {
+    color: var(--accent-gold);
+    font-size: 1.125rem;
+    font-variant-numeric: tabular-nums;
+}
